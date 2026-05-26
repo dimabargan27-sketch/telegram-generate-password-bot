@@ -3,6 +3,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
 import random
 import string
+from flask import Flask, request, jsonify
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import CopyTextButton
 import os
@@ -13,6 +14,7 @@ TOKEN = "8999001074:AAEdnvz5qRLinqsAigiN4U7HSordpWasrAM"
 #создание бота
 bot = Bot(token = TOKEN)
 dp = Dispatcher()
+app = Flask(__name__)
 
 #команды
 @dp.message(Command("create"))
@@ -64,12 +66,15 @@ async def generate_password(message: types.Message):
     except ValueError:
         await message.answer("*❌ Пожалуйста введите ЧИСЛО - длину пароля.*", parse_mode="Markdown")
 
-#запуск бота
-async def main():
-    port = int(os.environ.get("PORT", 8080))
-    print(f"Бот запущен на порту {port}...")
-    await dp.start_polling(bot)
-
-#проверка точки входа файла
+# Вебхук: Flask принимает запрос от Telegram и передаёт боту
+@app.route("/", methods=["POST", "GET"])
+async def webhook():
+    if request.method == "GET":
+        return "Bot is running"
+    update = Update.model_validate(request.json, context={"bot": bot})
+    await dp.feed_update(bot, update)
+    return "ok"
+    
+# Запуск Flask
 if __name__ == "__main__":
-    asyncio.run(main())
+    app.run()
