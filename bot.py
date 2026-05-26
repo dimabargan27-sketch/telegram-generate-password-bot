@@ -5,6 +5,7 @@ import random
 import string
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types import CopyTextButton
+import os
 
 #токен бота
 TOKEN = "8999001074:AAEdnvz5qRLinqsAigiN4U7HSordpWasrAM"
@@ -65,10 +66,10 @@ async def generate_password(message: types.Message):
 
 #запуск бота
 async def main():
-    print("Ботяра запущен...")
+    port = int(os.environ.get("PORT", 8080))
+    print(f"Бот запущен на порту {port}...")
     await dp.start_polling(bot)
 
 #проверка точки входа файла
 if __name__ == "__main__":
     asyncio.run(main())
-
